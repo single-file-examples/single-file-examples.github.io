@@ -2,7 +2,7 @@
  * == COMPILING ==
  *
  * To compile this file with MinGW on Windows, run the following command:
- *     g++ -Wall -o colored-window-example.exe colored-window-example.cpp -lopengl32 -lgdi32
+ *     g++ -Wall -o colored-window-example.exe colored-window-example.cpp -lopengl32 -lgdi32 -Iinclude
  *
  * == DESCRIPTION ==
  *
@@ -17,7 +17,7 @@
 
 #include <functional>
 #include <iostream>
-#include <GL/gl.h>
+#include "glad.c"
 
 #define EXAMPLE_NAME __FILE__
 
@@ -66,6 +66,8 @@ int main(int argc, char *argv[])
 
 
 /* ---------------------------------------------------------------------------*\
+ * BACKEND CODE
+ *
  * Next follows the code-under-the-hood to make a single file example work
  * If you don't know what your doing, please leave this as is:)
 \* ---------------------------------------------------------------------------*/
@@ -215,6 +217,8 @@ bool Win32Application::Startup(std::function<bool()> intialize, std::function<vo
     }
     
     wglMakeCurrent(_hDC, _hRC);
+    
+    gladLoadGL();
     
     if (!intialize())
     {
