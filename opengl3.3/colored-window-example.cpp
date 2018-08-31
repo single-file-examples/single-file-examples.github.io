@@ -1,8 +1,18 @@
 /*
- * Compile this file with the following command:
+ * == COMPILING ==
  *
+ * To compile this file with MinGW on Windows, run the following command:
  *     g++ -Wall -o colored-window-example.exe colored-window-example.cpp -lopengl32 -lgdi32
  *
+ * == DESCRIPTION ==
+ *
+ * This example shows how to clear the window with a color.
+ *
+ * == CONTENT ==
+ *
+ * This file is seperated into multiple sections:
+ *  - Application code
+ *  - Backend code
  */
 
 #include <functional>
@@ -15,30 +25,40 @@ class Application
 {
 public:
     virtual ~Application();
-    
     virtual int Run(std::function<bool()> tick) = 0;
-    
-    static Application *Create(std::function<bool()> intialize, std::function<void()> destroy);
+    static Application *Create(std::function<bool()> intialize, std::function<void(int width, int height)> resize, std::function<void()> destroy);
 };
+
+bool Startup()
+{
+    std::cout << EXAMPLE_NAME << " startup() ran!\n";
+    return true;
+}
+
+void Resize(int width, int height)
+{
+    std::cout << EXAMPLE_NAME << " resize()\n";
+    glViewport(0, 0, width, height);
+}
+
+void Destroy()
+{
+    std::cout << EXAMPLE_NAME << " destroy() ran!\n";
+}
+
+bool Run()
+{
+    glClearColor(0.0f, 0.4f, 1.0f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    
+    return true; // to keep running
+}
 
 int main(int argc, char *argv[])
 {
-    auto app = Application::Create([] () -> bool
-        {
-            std::cout << EXAMPLE_NAME << " startup() ran!\n";
-            return true;
-        }, [] () -> void
-        {
-            std::cout << EXAMPLE_NAME << " destroy() ran!\n";
-        });
+    auto app = Application::Create(Startup, Resize, Destroy);
 
-    return app->Run([] () -> bool
-        {
-            glClearColor(0.0f, 0.4f, 1.0f, 1.0f);
-            glClear(GL_COLOR_BUFFER_BIT);
-            
-            return true; // to keep running
-        });
+    return app->Run(Run);
 }
 
 
@@ -60,6 +80,7 @@ typedef HGLRC (WINAPI * PFNGLXCREATECONTEXTATTRIBS) (HDC hDC, HGLRC hShareContex
 
 class Win32Application : public Application
 {
+    std::function<void(int width, int height)> _resize;
     std::function<void()> _destroy;
     HINSTANCE _hInstance;
     HWND _hWnd;
@@ -73,13 +94,14 @@ class Win32Application : public Application
     static LRESULT CALLBACK staticProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 public:
-    bool Startup(std::function<bool()> intialize, std::function<void()> destroy);
+    bool Startup(std::function<bool()> intialize, std::function<void(int width, int height)> resize, std::function<void()> destroy);
     virtual int Run(std::function<bool()> tick);
 
 };
 
-bool Win32Application::Startup(std::function<bool()> intialize, std::function<void()> destroy)
+bool Win32Application::Startup(std::function<bool()> intialize, std::function<void(int width, int height)> resize, std::function<void()> destroy)
 {
+    _resize = resize;
     _destroy = destroy;
     _hInstance = GetModuleHandle(nullptr);
     
@@ -194,11 +216,17 @@ bool Win32Application::Startup(std::function<bool()> intialize, std::function<vo
     
     wglMakeCurrent(_hDC, _hRC);
     
+    if (!intialize())
+    {
+        Destroy("Initialize failed");
+        return false;
+    }
+    
     ShowWindow(_hWnd, SW_SHOW);
     SetForegroundWindow(_hWnd);
     SetFocus(_hWnd);
     
-    return intialize();
+    return true;
 }
 
 int Win32Application::Run(std::function<bool()> tick)
@@ -258,6 +286,18 @@ void Win32Application::Destroy(const char *errorMessage)
 
 LRESULT CALLBACK Win32Application::objectProc(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+    switch (uMsg)
+    {
+        case WM_SIZE:
+        {
+            auto width = LOWORD(lParam);
+            auto height = HIWORD(lParam);
+            
+            this->_resize(width, height);
+            
+            break;
+        }
+    }
     return DefWindowProc(this->_hWnd, uMsg, wParam, lParam);
 }
 
@@ -291,11 +331,11 @@ LRESULT CALLBACK Win32Application::staticProc(HWND hWnd, UINT uMsg, WPARAM wPara
     return DefWindowProc(hWnd, uMsg, wParam, lParam);
 }
 
-Application *Application::Create(std::function<bool()> initialize, std::function<void()> destroy)
+Application *Application::Create(std::function<bool()> initialize, std::function<void(int width, int height)> resize, std::function<void()> destroy)
 {
     static Win32Application app;
     
-    if (app.Startup(initialize, destroy))
+    if (app.Startup(initialize, resize, destroy))
     {
         return &app;
     }
