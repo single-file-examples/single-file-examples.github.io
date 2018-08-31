@@ -1,7 +1,7 @@
 /*
  * Compile this file with the following command:
  *
- *     g++ -Wall -o win32-gl-example.exe win32-gl-example.cpp -lopengl32 -lgdi32
+ *     g++ -Wall -o colored-window-example.exe colored-window-example.cpp -lopengl32 -lgdi32
  *
  */
 
