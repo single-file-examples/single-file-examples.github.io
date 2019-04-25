@@ -32,7 +32,7 @@ void Destroy()
     std::cout << EXAMPLE_NAME << " destroy() was executes\n";
 }
 
-bool Run()
+bool Tick()
 {
     glClearColor(0.0f, 0.4f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -44,5 +44,5 @@ int main(int argc, char *argv[])
 {
     auto app = Application::Create(Startup, Resize, Destroy);
 
-    return app->Run(Run);
+    return app->Run(Tick);
 }

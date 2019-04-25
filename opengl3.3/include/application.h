@@ -182,7 +182,9 @@ bool Win32Application::Startup(std::function<bool()> intialize, std::function<vo
 
 int Win32Application::Run(std::function<bool()> tick)
 {
-    while (tick())
+    bool running = true;
+
+    while (running)
     {
         MSG msg;
         while (PeekMessage(&msg, nullptr, 0, 0, PM_REMOVE))
@@ -202,6 +204,8 @@ int Win32Application::Run(std::function<bool()> tick)
         {
             break;
         }
+        
+        running = tick();
         
         SwapBuffers(_hDC);
     }
