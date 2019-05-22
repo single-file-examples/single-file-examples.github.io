@@ -2,7 +2,7 @@
  * == COMPILING ==
  *
  * To compile this file with MinGW on Windows, run the following command:
- *     g++ -std=c++11 -Wall -o shader-and-buffer-example.exe shader-and-buffer-example.cpp -lopengl32 -lgdi32 -Iinclude
+ *     g++ -std=c++11 -Wall -lopengl32 -lgdi32 -Iinclude
  *
  * == DESCRIPTION ==
  *

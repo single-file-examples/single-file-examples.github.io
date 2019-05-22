@@ -1,0 +1,10 @@
+[
+  {
+    "command": "single_file_example_build",   
+    "caption": "Build the current Single File Example"
+  },
+  {
+    "command": "single_file_example_run",   
+    "caption": "Run the current Single File Example"
+  }
+]
