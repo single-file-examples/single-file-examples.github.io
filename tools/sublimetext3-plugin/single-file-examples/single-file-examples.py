@@ -15,6 +15,9 @@ class SingleFileExampleBuildCommand(sublime_plugin.TextCommand):
 
                 print('running '+self.view.substr(region))
                 exec_options = {
+                    'env': {
+                        'PATH': '$MINGW_BIN;$PATH'
+                    },
                     'quiet': False,
                     'working_dir': file[0],
                     'shell_cmd': command + ' -o ' + file[1] + '.exe'
@@ -27,6 +30,9 @@ class SingleFileExampleRunCommand(sublime_plugin.TextCommand):
             file = os.path.split(self.view.file_name())
 
             exec_options = {
+                'env': {
+                    'PATH': '$MINGW_BIN;$PATH'
+                },
                 'quiet': False,
                 'working_dir': file[0],
                 'shell_cmd': file[1] + '.exe'
