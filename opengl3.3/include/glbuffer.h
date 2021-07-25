@@ -93,8 +93,12 @@ public:
         glBufferData(GL_ARRAY_BUFFER, GLsizeiptr(_verts.size() * sizeof(VertexType)), 0, GL_STATIC_DRAW);
         glBufferSubData(GL_ARRAY_BUFFER, 0, GLsizeiptr(_verts.size() * sizeof(VertexType)), reinterpret_cast<const GLvoid*>(&_verts[0]));
 
-        shader.setupAttributes();
+        glBindVertexArray(0);
+        glBindBuffer(GL_ARRAY_BUFFER, 0);
 
+        glBindVertexArray(_vertexArrayId);
+        glBindBuffer(GL_ARRAY_BUFFER, _vertexBufferId);
+        shader.setupAttributes();
         glBindVertexArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 
